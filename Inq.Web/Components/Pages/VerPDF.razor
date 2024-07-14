@@ -20,11 +20,16 @@
             <th>ID</th>
             <th>PDF</th>
             <th>Visualizar</th>
+            <th></th>
+
         </tr>
     </thead>
     <tbody>
         @if( arquivoPDF.Arquivos !=null && arquivoPDF.Arquivos.Count > 0)
         {
+            
+            <input type="text" @bind="quest" id="quest" placeholder="Digite sua pergunta aqui" />
+
             @foreach (ArquivoPDF arquivo in arquivoPDF.Arquivos)
             {
               <tr>
@@ -32,8 +37,9 @@
                <td>@arquivo.Nome</td>
                <td>
                 <button @onclick="@(e=>MostrarNaPagina(@arquivo.ArquivoId))">Página Atual</button>
-                <button @onclick="@(e=>MostrarEmNovaAba(@arquivo.ArquivoId))">Nova Aba</button>
+                <button @onclick="@(e=>ProcessaArquivo(quest))">Processar arquivo</button>
                </td>
+
             </tr>
             }
         }
@@ -56,6 +62,8 @@
     IReadOnlyList<IBrowserFile>? arquivosSelecionados;
     public string nomePDF = "";
     public string Erro = "";
+    private string quest { get; set; }
+
 
     [CascadingParameter]
     public Error? Error { get; set; }
@@ -87,9 +95,8 @@
     private void MostrarNaPagina(int arquivoId)=> 
         nomePDF = arquivoPDF.Arquivos.SingleOrDefault(x => x.ArquivoId == arquivoId).Nome;
     
-    private void MostrarEmNovaAba(int arquivoId)
+    private async Task ProcessaArquivo(string quest)
     {
-        nomePDF = arquivoPDF.Arquivos.SingleOrDefault(x => x.ArquivoId == arquivoId).Nome;
-        jsRuntime.InvokeVoidAsync("AbrirNovaAba", nomePDF);
+       await arquivoService.ProcessaArquivo(quest);
     }
 }
